@@ -21,6 +21,8 @@ public class EndlessTerrain : MonoBehaviour
     int chunkSize;
     int chunksVisibleInViewDst;
     
+    bool hasUpdatedChunks = false;
+    
     Dictionary<Vector2, TerrainChunk> terrainChunkDict = new Dictionary<Vector2, TerrainChunk>();
     static List<TerrainChunk> terraubChunksVisibleLastUpdate = new List<TerrainChunk>();
 
@@ -43,6 +45,16 @@ public class EndlessTerrain : MonoBehaviour
         {
             viewerPositionOld = viewerPosition;
             UpdateVisibleChunks();
+        }
+        
+        if (InteractionController.NPCkilled && !hasUpdatedChunks)
+        {
+            foreach (var chunk in terrainChunkDict.Values)
+            {
+                chunk.ForceUpdate(); // 👈 custom method we’ll add next
+            }
+
+            hasUpdatedChunks = true;
         }
     }
 
@@ -212,6 +224,11 @@ public class EndlessTerrain : MonoBehaviour
         public bool IsVisible()
         {
             return meshObject.activeSelf;
+        }
+        
+        public void ForceUpdate()
+        {
+            mapGenerator.RequestMapData(position, OnMapDataRecived);
         }
     }
 

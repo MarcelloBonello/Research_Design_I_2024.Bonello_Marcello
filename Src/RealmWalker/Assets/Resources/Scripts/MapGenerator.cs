@@ -36,8 +36,8 @@ public class MapGenerator : MonoBehaviour
     public Vector2 offset;
 
     public bool useFallOff; 
-    
     public bool autoUpdate;
+    bool hasUpdatedColor = false;
 
     public TerrainType[] regions;
     
@@ -49,6 +49,33 @@ public class MapGenerator : MonoBehaviour
     void Awake()
     {
         fallOffMap = FallOffGenerator.GenerateFallOffMap(mapChunkSize);
+    }
+    
+    void Update()
+    {
+        if (MapDataThreadInfoQueue.Count > 0)
+        {
+            for (int i = 0; i < MapDataThreadInfoQueue.Count; i++)
+            {
+                MapThreadInfo<MapData> threadInfo = MapDataThreadInfoQueue.Dequeue();
+                threadInfo.callback(threadInfo.parameter);
+            }
+        }
+
+        if (MeshDataThreadInfoQueue.Count > 0)
+        {
+            for (int i = 0; i < MeshDataThreadInfoQueue.Count; i++)
+            {
+                MapThreadInfo<MeshData> threadInfo = MeshDataThreadInfoQueue.Dequeue();
+                threadInfo.callback(threadInfo.parameter);
+            }
+        }
+        
+        if (InteractionController.NPCkilled && !hasUpdatedColor)
+        {
+            DrawMapInEditor();
+            hasUpdatedColor = true;
+        }
     }
     
     public void DrawMapInEditor()
@@ -113,33 +140,46 @@ public class MapGenerator : MonoBehaviour
             MeshDataThreadInfoQueue.Enqueue(new MapThreadInfo<MeshData>(callback, meshData));
         }
     }
-    void Update()
-    {
-        if (MapDataThreadInfoQueue.Count > 0)
-        {
-            for (int i = 0; i < MapDataThreadInfoQueue.Count; i++)
-            {
-                MapThreadInfo<MapData> threadInfo = MapDataThreadInfoQueue.Dequeue();
-                threadInfo.callback(threadInfo.parameter);
-            }
-        }
-
-        if (MeshDataThreadInfoQueue.Count > 0)
-        {
-            for (int i = 0; i < MeshDataThreadInfoQueue.Count; i++)
-            {
-                MapThreadInfo<MeshData> threadInfo = MeshDataThreadInfoQueue.Dequeue();
-                threadInfo.callback(threadInfo.parameter);
-            }
-        }
-    }
+    
     MapData GenerateMapData(Vector2 centre)
     {
         float[,] noiseMap = Noise.GenerateNoiseMap(mapChunkSize + 2, mapChunkSize + 2, seed, noiseScale, octaves, persistance,
             lacunarity, centre + offset, normalizeMode);
 
         Color[] colourMap = new Color[mapChunkSize * mapChunkSize];
+        
+        if (InteractionController.NPCkilled && !hasUpdatedColor)
+        {
+            Debug.Log("NPC killed — changing region colors");
 
+            Color DeepWaterColor = new Color(0.3f, 0.0f, 0.0f);
+            Color WaterColor     = new Color(0.7f, 0.0f, 0.0f);
+            Color SandColor      = new Color(0.22f, 0.21f, 0.2f);
+            Color GrassColor     = new Color(0.2f, 0.22f, 0.13f);
+            Color Grass2Color    = new Color(0.29f, 0.25f, 0.18f);
+            Color RockColor      = new Color(0.13f, 0.09f, 0.10f);
+            Color Rock2Color     = new Color(0.12f, 0.12f, 0.12f);
+            Color SnowColor      = new Color(0.6f, 0.2f, 0.0f);
+
+            for (int i = 0; i < regions.Length; i++)
+            {
+                switch (regions[i].name)
+                {
+                    case "DeepWater": regions[i].color = DeepWaterColor; break;
+                    case "Water":     regions[i].color = WaterColor;     break;
+                    case "Sand":      regions[i].color = SandColor;     break;
+                    case "Grass":     regions[i].color = GrassColor;     break;
+                    case "Grass2":    regions[i].color = Grass2Color;    break;
+                    case "Rock":      regions[i].color = RockColor;      break;
+                    case "Rock2":     regions[i].color = Rock2Color;     break;
+                    case "Snow":      regions[i].color = SnowColor;      break;
+                }
+            }
+
+            hasUpdatedColor = true; // So we don't do it again
+        }
+
+        
         for (int y = 0; y < mapChunkSize; y++)
         {
             for (int x = 0; x < mapChunkSize; x++)
@@ -150,6 +190,7 @@ public class MapGenerator : MonoBehaviour
                 }
                 
                 float currentHeight = noiseMap[x, y];
+                
                 for (int i = 0; i < regions.Length; i++)
                 {
                     if (currentHeight >= regions[i].height)
