@@ -4,11 +4,7 @@
 TagManager:
   serializedVersion: 2
   tags:
-  - CinemachineTarget
   - Interactable
-  - NPC
-  - Cabin
-  - Book
   layers:
   - Default
   - TransparentFX

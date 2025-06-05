@@ -71,7 +71,7 @@ public class MapGenerator : MonoBehaviour
             }
         }
         
-        if (InteractionController.NPCkilled && !hasUpdatedColor)
+        if (InteractionController.doomRealm && !hasUpdatedColor)
         {
             DrawMapInEditor();
             hasUpdatedColor = true;
@@ -148,7 +148,7 @@ public class MapGenerator : MonoBehaviour
 
         Color[] colourMap = new Color[mapChunkSize * mapChunkSize];
         
-        if (InteractionController.NPCkilled && !hasUpdatedColor)
+        if (InteractionController.doomRealm && !hasUpdatedColor)
         {
             Debug.Log("NPC killed — changing region colors");
 

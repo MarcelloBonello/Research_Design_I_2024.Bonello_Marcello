@@ -9,9 +9,9 @@ public class AssetSpawner : MonoBehaviour
     public GameObject building;
     public GameObject book;
 
-    private Vector3 NPCpos = new Vector3(-7703.52f,2.54f,1353.17f);
+    private Vector3 NPCpos = new Vector3(-7703.52f,2.642f,1353.17f);
     private Vector3 buildingPos = new Vector3(-7703.52f,2.53f,1353.17f);
-    private Vector3 bookPos = new Vector3(-7731.293f,2f,1379.011f);
+    private Vector3 bookPos = new Vector3(-7705.71f,2.44f,1360.65f);
     
     private Quaternion spawnRotation =  Quaternion.identity;
     
@@ -35,7 +35,7 @@ public class AssetSpawner : MonoBehaviour
     }
 
 
-    void SetupInteractionZone(GameObject obj, Vector3 colliderSize, Vector3 colliderCenter, string tagName)
+    public static void SetupInteractionZone(GameObject obj, Vector3 colliderSize, Vector3 colliderCenter, string tagName)
     {
         BoxCollider collider = obj.GetComponent<BoxCollider>();
         

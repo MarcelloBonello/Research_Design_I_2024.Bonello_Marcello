@@ -47,7 +47,7 @@ public class EndlessTerrain : MonoBehaviour
             UpdateVisibleChunks();
         }
         
-        if (InteractionController.NPCkilled && !hasUpdatedChunks)
+        if (InteractionController.doomRealm && !hasUpdatedChunks)
         {
             foreach (var chunk in terrainChunkDict.Values)
             {
